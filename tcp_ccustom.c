@@ -6,6 +6,8 @@
 const u32 update_interval = 2;
 const u32 weight_old = 80;
 const u32 weight_new = 20;
+const u32 fast_inc_step = 2;
+const u32 slow_inc_step = 10;
 
 struct custom {
 	u32 artt;
@@ -69,9 +71,9 @@ static void tcp_custom_acked(struct sock *sk, const struct ack_sample *sample)
 	
 	if (rtt_us > ca->artt && ca->artt < ca->artt * 9 / 8) {
 		if (ca->fast_inc)
-			ca->ccwnd += 1;
+			ca->ccwnd += fast_inc_step;
 		else {
-			ca->ccwnd_cnt += sample->pkts_acked * 10;
+			ca->ccwnd_cnt += sample->pkts_acked * slow_inc_step;
 			while (ca->ccwnd_cnt > ca->ccwnd) {
 				ca->ccwnd_cnt -= ca->ccwnd;
 				ca->ccwnd++;
